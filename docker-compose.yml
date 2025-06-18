@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  backup:
+    build: ./backup
+    volumes:
+      - ./logs:/data
+    working_dir: /data
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - ./logs:/var/logs:ro
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    restart: unless-stopped
