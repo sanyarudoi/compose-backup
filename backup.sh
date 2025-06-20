@@ -1,27 +1,14 @@
 #!/bin/bash
 
-# Получить дату и имя папки
-DATE=$(date +"%Y%m%d_%H%M")
-DIR="backup_$DATE"
+LOGS_DIR=${LOGS_DIR:-/data}
+BACKUP_PREFIX=${BACKUP_PREFIX:-backup_}
+LOG_FILE=${LOG_FILE:-backup.log}
 
-# Создать папку
-mkdir "$DIR"
+TIMESTAMP=$(date +"%Y%m%d_%H%M")
+BACKUP_DIR="${LOGS_DIR}/${BACKUP_PREFIX}${TIMESTAMP}"
+mkdir -p "$BACKUP_DIR"
 
-# Скопировать .txt файлы
-cp *.txt "$DIR" 2>/dev/null
+COUNT=$(find . -maxdepth 1 -name "*.txt" | wc -l)
+cp *.txt "$BACKUP_DIR" 2>/dev/null
 
-# Посчитать количество скопированных файлов
-COUNT=$(ls "$DIR"/*.txt 2>/dev/null | wc -l)
-
-if [ $COUNT -eq 0 ]; then
-    echo "[$(date +"%Y-%m-%d %H:%M")] Нет файлов для резервного копирования" >> backup.log
-    echo "Нет файлов .txt для копирования."
-    rmdir "$DIR"  # Чистим за собой
-    exit 0
-fi
-
-# Записать лог
-echo "[$(date +"%Y-%m-%d %H:%M")] Скопировано $COUNT файлов в $DIR" >> backup.log
-
-# Вывести результат
-echo "Готово! Скопировано $COUNT файлов."
+echo "[$(date '+%Y-%m-%d %H:%M')] Скопировано $COUNT файлов в ${BACKUP_PREFIX}${TIMESTAMP}" >> "${LOGS_DIR}/${LOG_FILE}"
